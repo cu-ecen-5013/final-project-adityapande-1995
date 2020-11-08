@@ -8,6 +8,10 @@ typedef struct alphabet{
 
 
 alphabet get_morse_code(char single_char){
+  if (single_char == '-'){
+    return (alphabet){1, "-"};
+  }
+ 
 
   if (single_char == 'A'){
     return (alphabet){2, "od"};

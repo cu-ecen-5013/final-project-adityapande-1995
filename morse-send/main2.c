@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include "alphabet.c"
 
-#define CLOCK 0.1
-#define CLOCK_FLASH_TIME 0.05
+#define CLOCK 0.05
+#define CLOCK_FLASH_TIME 0.025
 
 #define TOTAL_TIME 60.0
 
@@ -44,6 +44,8 @@ void send_morse(char* text){
             if(SEND_VERBOSE) printf("\n Sending new dot/dash..");
             dot_or_dash = current_code.code[j];
             if(SEND_VERBOSE) printf("\n Writing %c", dot_or_dash);
+
+	    if (dot_or_dash == '-') continue;
 
             gpioWrite(MSG_OUT_PIN, 1);
 
@@ -117,8 +119,13 @@ int main(int argc, char *argv[]){
 
   /*  Morse code output thread */
   char* to_send;
-  if (argc < 2) to_send = "SOS";
-  else to_send = argv[1];
+  char padded_msg[1000];
+  strcpy(padded_msg, "-");
+  if (argc < 2) to_send = "-SOS";
+  else{ 
+	  strcat(padded_msg, argv[1]);
+	  to_send = padded_msg;
+  }
   printf("\nSending %s", to_send);
   pthread_create(&sender_id, NULL, sender_thread, (void*)to_send);
   
