@@ -1,3 +1,3 @@
 all:
-	gcc -o pulse 1.c -lpigpio -lrt -lpthread
+	gcc -g main2.c -lpigpio -lrt -lpthread -o pulse
 
