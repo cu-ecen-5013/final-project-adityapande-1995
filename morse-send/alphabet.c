@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdio.h>
 
 typedef struct alphabet{
   int len;
@@ -87,12 +89,90 @@ alphabet get_morse_code(char single_char){
   }
 
 
-
-
-
-
-
   /*  Invalid char */
   return (alphabet){-1,NULL};
+}
+
+char* dot_to_char(char* code){
+	if (strcmp(code, "od") == 0) return "A";
+	if (strcmp(code, "dooo") == 0) return "B";
+	if (strcmp(code, "dodo") == 0) return "C";
+	if (strcmp(code, "doo") == 0) return "D";
+	if (strcmp(code, "o") == 0) return "E";
+	if (strcmp(code, "oodo") == 0) return "F";
+	if (strcmp(code, "ddo") == 0) return "G";
+	if (strcmp(code, "oooo") == 0) return "H";
+
+	if (strcmp(code, "oo") == 0) return "I";
+	if (strcmp(code, "oddd") == 0) return "J";
+	if (strcmp(code, "dod") == 0) return "K";
+	if (strcmp(code, "odoo") == 0) return "L";
+	if (strcmp(code, "dd") == 0) return "M";
+	if (strcmp(code, "do") == 0) return "N";
+	if (strcmp(code, "ddd") == 0) return "O";
+	if (strcmp(code, "oddo") == 0) return "P";
+	if (strcmp(code, "ddod") == 0) return "Q";
+	if (strcmp(code, "odo") == 0) return "R";
+
+	if (strcmp(code, "ooo") == 0) return "S";
+	if (strcmp(code, "d") == 0) return "T";
+	if (strcmp(code, "ood") == 0) return "U";
+	if (strcmp(code, "oood") == 0) return "V";
+	if (strcmp(code, "odd") == 0) return "W";
+	if (strcmp(code, "dood") == 0) return "X";
+	if (strcmp(code, "dodd") == 0) return "Y";
+	if (strcmp(code, "ddoo") == 0) return "Z";
+
+
+
+}
+
+void decode(int one_zero[], int index){
+  printf("\nTotal bits to be read :, %d", index);
+  char msg[1000];
+  strcpy(msg,"");
+
+  int i = 0;
+  // Removing leading zeros
+  while (one_zero[i] == 0) i++;
+
+  while (i < index){
+    //printf("\nReading message..");
+
+    if(one_zero[i] == 0 && one_zero[i+1] == 0 && one_zero[i+2] == 0){
+      //printf("\n Got EOW");
+      i = i + 3;
+      strcat(msg, "|");
+      continue;
+    }
+    if(one_zero[i] == 1 && one_zero[i+1] == 0){
+      //printf("\n Got dot");
+      i = i+2;
+      strcat(msg, "o");
+      continue;
+    }
+    if(one_zero[i] == 1 && one_zero[i+1] == 1 && one_zero[i+2] == 1 && one_zero[i+3] == 0){
+      //printf("\n Got dash");
+      i = i+4;
+      strcat(msg, "d");
+      continue;
+    }
+
+    printf("\nCorrupt message received !\n");
+    break;
+
+ }
+
+
+  printf("\nDot dash form : %s\n\n", msg);
+  printf("\nText form: ");
+  char* token = strtok(msg, "|");
+  while (token != NULL){
+	  printf("\n Token: %s, alphabet: %s", token, dot_to_char(token));
+	  token = strtok(NULL, "|");
+  }
+
+  printf("\n");
+  
 }
 

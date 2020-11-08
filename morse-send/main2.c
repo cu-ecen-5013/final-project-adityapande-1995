@@ -7,6 +7,7 @@
 
 #define CLOCK 0.1
 #define CLOCK_FLASH_TIME 0.05
+
 #define TOTAL_TIME 60.0
 
 #define CLOCK_OUT_PIN 14
@@ -116,7 +117,7 @@ int main(int argc, char *argv[]){
 
   /*  Morse code output thread */
   char* to_send;
-  if (argc < 2) to_send = "HELLOWORLD";
+  if (argc < 2) to_send = "SOS";
   else to_send = argv[1];
   printf("\nSending %s", to_send);
   pthread_create(&sender_id, NULL, sender_thread, (void*)to_send);
@@ -137,7 +138,9 @@ int main(int argc, char *argv[]){
   printf("\n\n Receiver buffer :");
   for (int i = 0; i < receive_buffer_index; i++ ) printf("%d",receiver_buffer[i]);
   printf("\n Length of buffer: %d\n", receive_buffer_index);
-  
+  /*  Convert back to text */
+  decode(receiver_buffer, receive_buffer_index);
+
   return 0;
 }
 
