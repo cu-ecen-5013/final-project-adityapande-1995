@@ -4,7 +4,7 @@ Check out this [wiki](https://github.com/cu-ecen-5013/final-project-adityapande-
 
 ## Usage :
 ```
-cd morse-send;
+cd morse-without-clock
 make;
 sudo ./pulse "FOO"
 ```
