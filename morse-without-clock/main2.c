@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <pigpio.h>
 #include <pthread.h>
 #include <string.h>
@@ -9,7 +10,8 @@
 #include "alphabet.c"
 
 pthread_mutex_t lock;
-#define CLOCK_MS 1.0
+double CLOCK_MS; // CLOCK time in milliseconds
+bool PWM_ENABLE;
 
 #define TOTAL_TIME 60.0
 #define MSG_OUT_PIN 15
@@ -35,7 +37,7 @@ void send_morse(char* text){
   alphabet current_code;
 
   for (int i = 0; i < len; i++){
-      if(SEND_VERBOSE) printf("\n\n** Sending new character !");
+      if(SEND_VERBOSE) printf("\n\n** Sending new character , CLOCK_MS = %f !", CLOCK_MS);
       /*  Get morse code for current alphabet */
       current_code = get_morse_code(text[i]);
 
@@ -48,7 +50,8 @@ void send_morse(char* text){
 
 	    if (dot_or_dash == '-') continue;
 
-            gpioWrite(MSG_OUT_PIN, 1);
+            if(!PWM_ENABLE){ gpioWrite(MSG_OUT_PIN, 1); }
+	    else{ gpioPWM(MSG_OUT_PIN, 128);  }
 
             if (dot_or_dash == 'o'){
                     if(SEND_VERBOSE) printf("\nSending dot..");
@@ -60,11 +63,16 @@ void send_morse(char* text){
                   }
 
             if(SEND_VERBOSE) printf("\nDot/Dash sending complete..");
-            gpioWrite(MSG_OUT_PIN,0);
+
+	    if(!PWM_ENABLE){ gpioWrite(MSG_OUT_PIN, 0); }
+	    else{ gpioPWM(MSG_OUT_PIN, 0);  }
+
             usleep(CLOCK_MS*1000);
           }
       /* One alphabet sent*/
-      gpioWrite(MSG_OUT_PIN,0);
+      if(!PWM_ENABLE){ gpioWrite(MSG_OUT_PIN, 0); }
+      else{ gpioPWM(MSG_OUT_PIN, 0);  }
+
       usleep(CLOCK_MS*3*1000);
     }
   printf("\n Message sent !\n");
@@ -125,15 +133,26 @@ int main(int argc, char *argv[]){
 
   // --------  Loopback init ----------
   gpioSetMode(MSG_OUT_PIN, PI_OUTPUT);
+  gpioSetPWMfrequency(MSG_OUT_PIN, 10); 
   gpioSetMode(MSG_IN_PIN, PI_INPUT);  
   gpioSetISRFunc(MSG_IN_PIN,EITHER_EDGE,0,msg_in_callback);
-
-  sleep(2);
+  // Set PWM mode
+  if (argc == 4){
+	  gpioSetPWMfrequency(MSG_OUT_PIN, atof(argv[3]));
+	  PWM_ENABLE = true;
+	  printf("\n Running in PWM mode with freq %f!", atof(argv[3]));
+  }else{
+	  PWM_ENABLE = false;
+	  printf("\n Running without PWM !");
+  }
+  // Set the clock
+  if (argc >= 3)CLOCK_MS = atof(argv[2]);
+  else CLOCK_MS = 3.0;
   /*  Morse code output thread */
   pthread_t sender_id;
   char* to_send;
   char padded_msg[1000];
-  strcpy(padded_msg, "----");
+  strcpy(padded_msg, "--");
   if (argc < 2) to_send = "-SOS";
   else{ 
 	  strcat(padded_msg, argv[1]);
