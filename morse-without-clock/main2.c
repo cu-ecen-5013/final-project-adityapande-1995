@@ -133,7 +133,6 @@ int main(int argc, char *argv[]){
 
   // --------  Loopback init ----------
   gpioSetMode(MSG_OUT_PIN, PI_OUTPUT);
-  gpioSetPWMfrequency(MSG_OUT_PIN, 10); 
   gpioSetMode(MSG_IN_PIN, PI_INPUT);  
   gpioSetISRFunc(MSG_IN_PIN,EITHER_EDGE,0,msg_in_callback);
   // Set PWM mode
