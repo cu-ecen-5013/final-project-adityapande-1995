@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <pigpio.h>
 
-#define MSG_OUT_PIN 15
+#define MSG_OUT_PIN 12
 #define PWM_FREQ  1000
 
 int main(int argc, char *argv[]){
