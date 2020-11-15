@@ -5,14 +5,13 @@ Check out this [wiki](https://github.com/cu-ecen-5013/final-project-adityapande-
 ## Usage :
 For Raspberry Pi 3B+ model, this assumes the sending pin in GPIO15 (pin 10 physically) and receiving pin is GPIO21 (pin 40 physically) 
 ```
-cd morse-without-clock
 make;
-sudo ./pulse "SOS" 500.0 20 
-# sudo ./pulse text_to_send, clock_in_milliseconds, modulation_frequnecy_in_Hz
+sudo ./morse-loopback "SOS" 500.0 20 
+# sudo ./morse-loopback text_to_send, clock_in_milliseconds, modulation_frequnecy_in_Hz
 ```
 To run without modulation,
 ```
-sudo ./pulse "SOS" 500.0;
+sudo ./morse-loopback "SOS" 500.0;
 ```
 
 ### Limitations : 
