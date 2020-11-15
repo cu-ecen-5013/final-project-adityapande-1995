@@ -15,7 +15,7 @@
 #define PWM_FREQ  1000
 
 int main(int argc, char *argv[]){
-	  if (gpioInitialise() < 0){
+	/*  if (gpioInitialise() < 0){
 	        printf("Could not initialize pigpio !\n");
 	        return 1;
 	      }
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 		  usleep(1000);
 	  }
 
-	  gpioTerminate();
+	  gpioTerminate();*/
 	printf("Hello world");
 }
 
