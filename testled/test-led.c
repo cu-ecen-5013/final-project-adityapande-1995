@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <unistd.h>
-//#include <pigpio.h>
+#include <pigpio.h>
 
 #define MSG_OUT_PIN 15
 #define PWM_FREQ  1000
 
 int main(int argc, char *argv[]){
-/*	  if (gpioInitialise() < 0){
+	  if (gpioInitialise() < 0){
 	        printf("Could not initialize pigpio !\n");
 	        return 1;
 	      }
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 		  usleep(1000);
 	  }
 
-	  gpioTerminate();*/
-	printf("Hello world");
+	  gpioTerminate();
+	  printf("Hello world");
 }
 
