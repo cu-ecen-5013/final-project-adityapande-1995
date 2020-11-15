@@ -5,11 +5,11 @@
  *      Author: steveec9
  */
 
-#include <pigpio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <pigpio.h>
 
 #define MSG_OUT_PIN 15
 #define PWM_FREQ  1000
@@ -28,5 +28,6 @@ int main(int argc, char *argv[]){
 	  }
 
 	  gpioTerminate();
+	printf("Hello world");
 }
 
