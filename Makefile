@@ -5,9 +5,8 @@ endif
 ifeq ($(CFLAGS),)
 	CFLAGS = -g -Wall -Werror
 endif
-ifeq ($(LDFLAGS),)
-	LDFLAGS = -lpigpio -lrt -lpthread -lm
-endif
+
+LDFLAGS+=-lpigpio -lrt -lpthread -lm
 
 all:
 	$(CC) $(CFLAGS) morse-without-clock/main2.c -o morse-loopback $(INCLUDES) $(LDFLAGS);
