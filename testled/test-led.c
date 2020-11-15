@@ -19,11 +19,13 @@ int main(int argc, char *argv[]){
 	        printf("Could not initialize pigpio !\n");
 	        return 1;
 	      }
+	int res = gpioSetMode(MSG_OUT_PIN, PI_ALT0);
 
-	  int res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, PWM_FREQ);
-	  printf("Result %d\n", res);
+	printf("Set Mode Result %d\n", res);	
+	res = gpioHardwarePWM(MSG_OUT_PIN, 25000, 500000);
+	printf("PWM Result %d\n", res);
 
-	  for (int i = 0; i < 10000; i++) {
+	  for (int i = 0; i < 300; i++) {
 		  usleep(1000);
 	  }
 
