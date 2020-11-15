@@ -127,8 +127,7 @@ char* dot_to_char(char* code){
 	if (strcmp(code, "dodd") == 0) return "Y";
 	if (strcmp(code, "ddoo") == 0) return "Z";
 
-
-
+	return NULL;
 }
 
 void decode(int one_zero[], int index){
