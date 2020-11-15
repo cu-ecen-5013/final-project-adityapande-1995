@@ -4,7 +4,7 @@
 all: test-led
 
 test-led: ./testled/test-led.o
-	$(CC) $(LDFLAGS) -g -Wall -pthread -Werror -I/ ./testled/test-led.o -o test-led -lpigpio -lrt
+	$(CC) $(LDFLAGS) -g -Wall  -Werror -I/ ./testled/test-led.o -o test-led
 test-led.o: ./testled/test-led.c
 	$(CC) $(CCFLAGS) -c ./testled/test-led.c -o ./testled/test-led.o
 
