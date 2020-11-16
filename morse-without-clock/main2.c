@@ -18,7 +18,16 @@ bool PWM_ENABLE;
 #define MSG_IN_PIN 21
 
 #define RECEIVE_BUFFER_SIZE 1000
-#define SEND_VERBOSE false
+
+#ifndef VERBOSE
+#define VERBOSE true
+#endif
+
+#if VERBOSE
+#define DEBUG_PRINT(x) printf x
+#else
+#define DEBUG_PRINT(x) printf(" ")
+#endif
 
 bool DONE = false;
 
@@ -37,16 +46,16 @@ void send_morse(char* text){
   alphabet current_code;
 
   for (int i = 0; i < len; i++){
-      if(SEND_VERBOSE) printf("\n\n** Sending new character , CLOCK_MS = %f !", CLOCK_MS);
+	DEBUG_PRINT(("\n\n** Sending new character , CLOCK_MS = %f !", CLOCK_MS));
       /*  Get morse code for current alphabet */
       current_code = get_morse_code(text[i]);
 
-      if(SEND_VERBOSE) printf("\n Current char = %c, code : %s, %d", text[i], current_code.code, current_code.len);
+      DEBUG_PRINT(("\n Current char = %c, code : %s, %d", text[i], current_code.code, current_code.len));
       /*  Iterate over code and send it */
       for (int j=0; j< current_code.len ; j++){
-            if(SEND_VERBOSE) printf("\n Sending new dot/dash..");
+            DEBUG_PRINT(("\n Sending new dot/dash.."));
             dot_or_dash = current_code.code[j];
-            if(SEND_VERBOSE) printf("\n Writing %c", dot_or_dash);
+            DEBUG_PRINT(("\n Writing %c", dot_or_dash));
 
 	    if (dot_or_dash == '-') continue;
 
@@ -54,15 +63,15 @@ void send_morse(char* text){
 	    else{ gpioPWM(MSG_OUT_PIN, 128);  }
 
             if (dot_or_dash == 'o'){
-                    if(SEND_VERBOSE) printf("\nSending dot..");
+                    DEBUG_PRINT(("\nSending dot.."));
                     usleep(CLOCK_MS*1000);
                   }
             if (dot_or_dash == 'd'){
-                    if(SEND_VERBOSE) printf("\nSending dash..");
+                    DEBUG_PRINT(("\nSending dash.."));
                     usleep(CLOCK_MS*3*1000);
                   }
 
-            if(SEND_VERBOSE) printf("\nDot/Dash sending complete..");
+            DEBUG_PRINT(("\nDot/Dash sending complete.."));
 
 	    if(!PWM_ENABLE){ gpioWrite(MSG_OUT_PIN, 0); }
 	    else{ gpioPWM(MSG_OUT_PIN, 0);  }
@@ -75,7 +84,7 @@ void send_morse(char* text){
 
       usleep(CLOCK_MS*3*1000);
     }
-  printf("\n Message sent !\n");
+  DEBUG_PRINT(("\n Message sent !\n"));
   DONE = true;
 }
 
@@ -165,7 +174,9 @@ int main(int argc, char *argv[]){
   gpioTerminate();
 
   /* Print results */
-  //for(int i = 1; i < UFB_index; i++)printf("\n Edge %d at timestamp %u, frac with prev: %f", UF_buffer[i], UF_timestamps[i], (UF_timestamps[i] - UF_timestamps[i-1])/(CLOCK_MS*1000));
+  DEBUG_PRINT(("\n\nPrinting timestamp buffer: UFB_index = %d", UFB_index));
+  for(int i = 1; i < UFB_index; i++)DEBUG_PRINT( ("\n Edge %d at timestamp %u, frac with prev: %f", UF_buffer[i], UF_timestamps[i], (UF_timestamps[i] - UF_timestamps[i-1])/(CLOCK_MS*1000)) );
+
   generate_receiver_buffer();
   receive_buffer_index += 4; // Add EOW char
   printf("\n\n Receiver buffer :");
