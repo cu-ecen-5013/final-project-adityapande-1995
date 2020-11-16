@@ -90,6 +90,7 @@ void send_morse(char* text){
 
 void msg_in_callback(int gpio, int level, uint32_t tick){
   pthread_mutex_lock(&lock);
+  DEBUG_PRINT(("\n Callback received at %u, initializing mutex lock", tick));
   /*  If rising edge is detected in clock */
   if (level == 1){
     uint32_t timestamp = tick;
@@ -103,6 +104,7 @@ void msg_in_callback(int gpio, int level, uint32_t tick){
     UFB_index++;
   }
   pthread_mutex_unlock(&lock);
+  DEBUG_PRINT(("\n Mutex lock removed for timestamp %u", tick));
 }
 
 void generate_receiver_buffer(){
@@ -130,6 +132,7 @@ void generate_receiver_buffer(){
 void* sender_thread(void* arg){
   char* mytext = (char*)arg;
   send_morse(mytext);
+  DEBUG_PRINT(("\n Returning from sender thread !"));
   return NULL;
 }
 
@@ -168,10 +171,11 @@ int main(int argc, char *argv[]){
   }
   printf("\nSending %s", to_send);
   pthread_create(&sender_id, NULL, sender_thread, (void*)to_send);
-  
+  DEBUG_PRINT(("\n Sender thread spawned !"));
+
   /*  Cleanup */
   pthread_join(sender_id, NULL);
-  gpioTerminate();
+  DEBUG_PRINT(("\n Sender thread joined !"));
 
   /* Print results */
   DEBUG_PRINT(("\n\nPrinting timestamp buffer: UFB_index = %d", UFB_index));
@@ -184,6 +188,9 @@ int main(int argc, char *argv[]){
   printf("\n Length of buffer: %d\n", receive_buffer_index);
   /*  Convert back to text */
   decode(receiver_buffer, receive_buffer_index);
+
+  gpioTerminate();
+  DEBUG_PRINT(("\n Gpio terminated !"));
 
   return 0;
 }
