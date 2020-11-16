@@ -12,7 +12,7 @@
 #include <pigpio.h>
 
 #define MSG_OUT_PIN 12
-#define PWM_FREQ  1000
+#define PWM_FREQ  38000
 
 int main(int argc, char *argv[]){
 	  if (gpioInitialise() < 0){
@@ -22,14 +22,15 @@ int main(int argc, char *argv[]){
 	int res = gpioSetMode(MSG_OUT_PIN, PI_ALT0);
 
 	printf("Set Mode Result %d\n", res);	
-	res = gpioHardwarePWM(MSG_OUT_PIN, 25000, 500000);
+	res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 500000);
 	printf("PWM Result %d\n", res);
 
 	  for (int i = 0; i < 300; i++) {
 		  usleep(1000);
 	  }
-
-	  gpioTerminate();
+	res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);
+	printf("PWM End Result %d\n", res);  
+	gpioTerminate();
 	  printf("Hello world");
 }
 
