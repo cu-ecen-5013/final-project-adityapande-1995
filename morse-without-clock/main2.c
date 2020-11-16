@@ -189,8 +189,8 @@ int main(int argc, char *argv[]){
   /*  Convert back to text */
   decode(receiver_buffer, receive_buffer_index);
 
-  gpioTerminate();
-  DEBUG_PRINT(("\n Gpio terminated !"));
+  //gpioTerminate();
+  //DEBUG_PRINT(("\n Gpio terminated !"));
 
   return 0;
 }
