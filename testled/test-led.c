@@ -25,11 +25,9 @@ int main(int argc, char *argv[]){
 	res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 500000);
 	printf("PWM Result %d\n", res);
 
-	  for (int i = 0; i < 300; i++) {
+	  for (int i = 0; i < 10000; i++) {
 		  usleep(1000);
 	  }
-	res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);
-	printf("PWM End Result %d\n", res);  
 	gpioTerminate();
 	  printf("Hello world");
 }
