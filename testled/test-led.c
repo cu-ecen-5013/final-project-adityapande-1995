@@ -22,13 +22,16 @@ int main(int argc, char *argv[]){
 	int res = gpioSetMode(MSG_OUT_PIN, PI_ALT0);
 
 	printf("Set Mode Result %d\n", res);	
-	res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 500000);
-	printf("PWM Result %d\n", res);
 
-	  for (int i = 0; i < 10000; i++) {
-		  usleep(1000);
+	  for (int i = 0; i < 100; i++) {
+		  res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 500000);
+		  printf("PWM On Result %d\n", res);
+		  usleep(500*1000);
+		  res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);
+		  printf("PWM Off Result %d\n", res);
+		  usleep(500*1000);
 	  }
-	gpioTerminate();
-	  printf("Hello world");
+	 gpioTerminate();
+	 printf("gpioTerminate result:  %d\n", res);
 }
 
