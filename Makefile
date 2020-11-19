@@ -18,17 +18,13 @@
 #CC=gcc
 #CFLAGS +=-g -Wall -Werror
 
-all: test-led
+all: morse-loopback
 
-test-led: ./testled/test-led.o ./morse-without-clock/main2.o
-	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -g -Wall -Werror -I/ ./testled/test-led.o -o test-led -lpigpio
+morse-loopback: ./morse-without-clock/main2.o
 	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -g -Wall -Werror -I/ ./morse-without-clock/main2.o -o morse-loopback -lpigpio -lrt -lpthread -lm
-
-test-led.o: ./testled/test-led.c
-	$(CROSS_COMPILE)$(CC) $(CCFLAGS) -c ./testled/test-led.c -o ./testled/test-led.o
 
 main2.o: ./morse-without-clock/main2.c
 	$(CROSS_COMPILE)$(CC) $(CCFLAGS) -c ./morse-without-clock/main2.c -o ./morse-without-clock/main2.o
 
 clean:
-	rm -f *.o test-led morse-loopback *.elf *.map ./testled/*.o ./morse-without-clock/*.o
+	rm -f *.o morse-loopback *.elf *.map ./morse-without-clock/*.o

@@ -173,8 +173,5 @@ void decode(int one_zero[], int index){
 	  printf("\n Token: %s, alphabet: %s", token, dot_to_char(token));
 	  token = strtok(NULL, "|");
   }
-
-  printf("\n");
-  
 }
 
