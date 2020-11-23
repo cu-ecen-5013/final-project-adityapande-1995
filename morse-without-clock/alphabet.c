@@ -11,6 +11,7 @@ alphabet get_morse_code(char single_char){
   if (single_char == '-'){
     return (alphabet){1, "-"};
   }
+
  
 
   if (single_char == 'A'){
@@ -147,6 +148,14 @@ void decode(int one_zero[], int index){
       strcat(msg, "|");
       continue;
     }
+
+   if(one_zero[i] == 1 && one_zero[i+1] == 1 && one_zero[i+2] == 1 && one_zero[i+3] == 1 &&one_zero[i+4] ==0){
+      //printf("\n Got EOC");
+     i += 5;
+      strcat(msg, "-");
+      continue;
+    }
+
     if(one_zero[i] == 1 && one_zero[i+1] == 0){
       //printf("\n Got dot");
       i = i+2;
@@ -168,10 +177,10 @@ void decode(int one_zero[], int index){
 
   printf("\nDot dash form : %s\n\n", msg);
   printf("\nText form: ");
-  char* token = strtok(msg, "|");
+  char* token = strtok(msg, "-");
   while (token != NULL){
 	  printf("\n Token: %s, alphabet: %s", token, dot_to_char(token));
-	  token = strtok(NULL, "|");
+	  token = strtok(NULL, "-");
   }
 }
 

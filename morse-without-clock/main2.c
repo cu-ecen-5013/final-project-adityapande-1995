@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include "alphabet.c"
 #include <time.h>
+#include <signal.h>
 
 pthread_mutex_t lock;
 double CLOCK_MS; // CLOCK time in milliseconds
@@ -63,14 +64,12 @@ void send_morse(char *text) {
 			dot_or_dash = current_code.code[j];
 			DEBUG_PRINT("\n Writing %c", dot_or_dash);
 
-			if (dot_or_dash == '-')
+			if (dot_or_dash == '-'){
 				continue;
-
-			if (!PWM_ENABLE) {
-				gpioWrite(MSG_OUT_PIN, 1);
-			} else {
-				gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, DUTY_CYCLE);
 			}
+
+			if (!PWM_ENABLE) {gpioWrite(MSG_OUT_PIN, 1);} 
+			else {gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, DUTY_CYCLE);}
 
 			int delay_us;
 			if (dot_or_dash == 'o') {
@@ -86,14 +85,21 @@ void send_morse(char *text) {
 
 			DEBUG_PRINT("\nDot/Dash sending complete..");
 
-			if (!PWM_ENABLE) {
-				gpioWrite(MSG_OUT_PIN, 0);
-			} else {
-				gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);
-			}
+			if (!PWM_ENABLE) {gpioWrite(MSG_OUT_PIN, 0);} 
+			else{gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);}
 
 			usleep(CLOCK_MS * 1000);
 		}
+		/* Send end of character */
+		if (!PWM_ENABLE) {gpioWrite(MSG_OUT_PIN, 1);} 
+		else {gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, DUTY_CYCLE);}
+		usleep(CLOCK_MS*5*1000);
+
+		if (!PWM_ENABLE) {gpioWrite(MSG_OUT_PIN, 0);} 
+		else{gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);}
+
+		usleep(CLOCK_MS * 1000);
+
 	}
 	DEBUG_PRINT("\n Message sent !\n");
 	DONE = true;
@@ -118,6 +124,18 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 
 	    elapsed_us = (stop.tv_sec - start.tv_sec) * 1000000 +
 	    		(stop.tv_nsec - start.tv_nsec) / 1000;
+
+	    if (elapsed_us > (CLOCK_MS * 4 * 1000)) {
+	    	receiver_buffer[rx_buf_idx++] = 1;
+	    	receiver_buffer[rx_buf_idx++] = 1;
+	    	receiver_buffer[rx_buf_idx++] = 1;
+	    	receiver_buffer[rx_buf_idx++] = 1;
+		receiver_buffer[rx_buf_idx++] = 0;
+	    	DEBUG_PRINT("Logic EOC received %f\n", elapsed_us);
+		pthread_mutex_unlock(&lock);
+		return;
+	    }
+
 
 	    if (elapsed_us > (CLOCK_MS * 2 * 1000)) {
 	    	receiver_buffer[rx_buf_idx++] = 1;
@@ -209,7 +227,7 @@ int main(int argc, char *argv[]) {
 	DEBUG_PRINT("\n Sender thread joined !");
 
 	//generate_receiver_buffer();
-	rx_buf_idx += 4; // Add EOW char
+	//rx_buf_idx += 4; // Add EOW char
 	printf("\n\n Receiver buffer :");
 	for (int i = 0; i < rx_buf_idx; i++)
 		printf("%d", receiver_buffer[i]);
@@ -218,7 +236,8 @@ int main(int argc, char *argv[]) {
 	decode(receiver_buffer, rx_buf_idx);
 
 	//gpioTerminate();
-//	DEBUG_PRINT(("\n Gpio terminated !"));
+	//DEBUG_PRINT(("\n Gpio terminated !"));
+	//kill(getpid(), SIGKILL);
 
 	return 0;
 }
