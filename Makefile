@@ -18,7 +18,7 @@
 #CC=gcc
 #CFLAGS +=-g -Wall -Werror
 
-all: morse-loopback
+all: morse-loopback stress-test-app
 
 morse-loopback: ./morse-without-clock/main2.o
 	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -g -Wall -Werror -I/ ./morse-without-clock/main2.o -o morse-loopback -lpigpio -lrt -lpthread -lm
@@ -26,5 +26,12 @@ morse-loopback: ./morse-without-clock/main2.o
 main2.o: ./morse-without-clock/main2.c
 	$(CROSS_COMPILE)$(CC) $(CCFLAGS) -c ./morse-without-clock/main2.c -o ./morse-without-clock/main2.o
 
+stress-test-app: ./stress-test/stress-test.o
+	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -g -Wall -Werror -I/ ./stress-test/stress-test.o -o stress-test-app -lpigpio -lrt -lpthread -lm
+
+stress-test.o: ./stress-test/stress-test.c
+	$(CROSS_COMPILE)$(CC) $(CCFLAGS) -c ./stress-test/stress-test.c -o ./stress-test/stress-test.o
+
+
 clean:
-	rm -f *.o morse-loopback *.elf *.map ./morse-without-clock/*.o
+	rm -f *.o morse-loopback *.elf *.map ./morse-without-clock/*.o ./stress-test/*.o
