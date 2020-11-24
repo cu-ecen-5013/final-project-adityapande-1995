@@ -28,9 +28,7 @@ struct send_thread_data {
 struct send_thread_data send_thread_data;
 pthread_mutex_t lock;
 double CLOCK_MS; // CLOCK time in milliseconds
-bool PWM_ENABLE;
 
-#define TOTAL_TIME 			60.0
 #define MSG_OUT_PIN 		12
 #define MSG_IN_PIN 			18
 #define PWM_FREQ			38000
@@ -43,7 +41,6 @@ bool PWM_ENABLE;
 
 #define WRITEFILE "/var/tmp/IR_data.txt"
 
-#define RECEIVE_BUFFER_SIZE 2
 
 #ifndef VERBOSE
 #define VERBOSE 1
@@ -54,11 +51,7 @@ bool PWM_ENABLE;
 #define DEBUG_PRINT(fmt, ...)
 #endif
 
-bool DONE = false;
-
-char receiver_buffer[RECEIVE_BUFFER_SIZE];
-int rx_byte_idx = 0;
-
+int rx_bit_idx = 0;
 char rx_byte = 0;
 
 char tx_buf[TX_BUF_SZ] = { 0 };
@@ -79,7 +72,7 @@ void* sender_thread(void *arg) {
 	struct send_thread_data *data = (struct send_thread_data*) arg;
 	send_data(data);
 	DEBUG_PRINT("\n Returning from sender thread !");
-	return NULL;
+	return 0;
 }
 
 void send_data(struct send_thread_data *data) {
@@ -108,22 +101,16 @@ void send_data(struct send_thread_data *data) {
 
 			usleep(delay_us);
 
-			DEBUG_PRINT("Bit sent..\n");
-
-			if (!PWM_ENABLE) {
-				gpioWrite(MSG_OUT_PIN, 0);
-			} else {
-				gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);
-			}
+			gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, 0);
 
 			usleep(CLOCK_MS * 1000);
 		}
 	}
 	DEBUG_PRINT("\n Message sent !\n");
-	DONE = true;
 }
 
 void msg_in_callback(int gpio, int level, uint32_t tick) {
+	DEBUG_PRINT("***LOCKING***\n");
 	pthread_mutex_lock(&lock);
 //	DEBUG_PRINT("\n Callback received at %u\n", tick);
 
@@ -142,13 +129,13 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 				+ (stop.tv_nsec - start.tv_nsec) / 1000;
 
 		if (elapsed_us > (CLOCK_MS * 2 * 1000)) {
-			rx_byte |= 1 << rx_byte_idx;
-			rx_byte_idx++;
-			DEBUG_PRINT("Logic 1 received %c\n", rx_byte_idx);
+			rx_byte |= 1 << rx_bit_idx;
+			rx_bit_idx++;
+			DEBUG_PRINT("Logic 1 received %c\n", rx_bit_idx);
 		} else {
-			rx_byte &= ~(1 << rx_byte_idx);
-			rx_byte_idx++;
-			DEBUG_PRINT("Logic 0 received %c\n", rx_byte_idx);
+			rx_byte &= ~(1 << rx_bit_idx);
+			rx_bit_idx++;
+			DEBUG_PRINT("Logic 0 received %c\n", rx_bit_idx);
 		}
 
 	}
@@ -164,7 +151,7 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 	}
 
 
-	if (rx_byte_idx == 8) {
+	if (rx_bit_idx == 8) {
 		DEBUG_PRINT("Writing byte to file: %c", rx_byte);
 
 		int fd = open(WRITEFILE, O_WRONLY | O_CREAT | O_APPEND,
@@ -175,9 +162,9 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 			DEBUG_PRINT("Error opening file: %d.\n", err);
 		}
 
-		char *buf = &receiver_buffer;
+		char *buf = &rx_byte;
 		int ret;
-		int len = rx_byte_idx >> 3;
+		int len = sizeof(rx_byte);
 		while (len != 0 && (ret = write(fd, buf, len)) != 0) {
 
 			if (ret == -1) {
@@ -193,13 +180,13 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 			len -= ret;
 			buf += ret;
 		}
-		rx_byte_idx = 0;
+		rx_bit_idx = 0;
 		rx_byte = 0;
 		if (close(fd) != 0) {
 			DEBUG_PRINT("Error receive file\n");
 		}
 	}
-
+	DEBUG_PRINT("***UNLOCKING***\n");
 	pthread_mutex_unlock(&lock);
 }
 
@@ -209,15 +196,12 @@ int main(int argc, char *argv[]) {
 	char *readFile;
 	if (argc == 3) {
 		readFile = argv[1];
-		DEBUG_PRINT("Read File: %s, Clock (ms): %f", readFile, CLOCK_MS);
 		CLOCK_MS = atof(argv[2]);
 		DEBUG_PRINT("Read File: %s, Clock (ms): %f", readFile, CLOCK_MS);
 	} else {
 		DEBUG_PRINT("Incorrect parameters given: %d\n", argc);
 		return -1;
 	}
-
-	DEBUG_PRINT("HERE\n");
 
 	if (gpioInitialise() < 0) {
 		printf("Could not initialize pigio !\n");
@@ -235,13 +219,10 @@ int main(int argc, char *argv[]) {
 	usleep(100000);
 	gpioSetISRFunc(MSG_IN_PIN, EITHER_EDGE, 0, msg_in_callback);
 
-
-
 	DEBUG_PRINT("Reading from %s", readFile);
 
 	int fd = open(readFile, O_RDONLY,
 	        S_IRWXU | S_IRGRP | S_IROTH);
-
 
 	if (fd < 0) {
 		int err = errno;
@@ -276,7 +257,11 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	close(fd);
+	DEBUG_PRINT("Closing fd\n");
+	if (close(fd) != 0) {
+		int err = errno;
+		DEBUG_PRINT("Failed to close file: %d\n", err);
+	}
 
-	return 0;
+	gpioTerminate();
 }
