@@ -110,9 +110,7 @@ void send_data(struct send_thread_data *data) {
 }
 
 void msg_in_callback(int gpio, int level, uint32_t tick) {
-	DEBUG_PRINT("***LOCKING***\n");
 	pthread_mutex_lock(&lock);
-//	DEBUG_PRINT("\n Callback received at %u\n", tick);
 
 	/*  If rising edge is detected in clock */
 	if (level == HIGH && valid_edge) {
@@ -146,10 +144,7 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 		if (ret) {
 			DEBUG_PRINT("Error: start clock_gettime: %d\n", ret);
 		}
-
-//		DEBUG_PRINT("Falling edge\n");
 	}
-
 
 	if (rx_bit_idx == 8) {
 		DEBUG_PRINT("Writing byte to file: %c", rx_byte);
@@ -186,7 +181,6 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 			DEBUG_PRINT("Error receive file\n");
 		}
 	}
-	DEBUG_PRINT("***UNLOCKING***\n");
 	pthread_mutex_unlock(&lock);
 }
 
