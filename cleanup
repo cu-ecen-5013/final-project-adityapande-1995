@@ -1,0 +1,2 @@
+#!/bin/sh
+kill -9 $(ps aux | grep morse-loopback | awk '{ print $1}')
