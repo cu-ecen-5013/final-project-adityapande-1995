@@ -179,7 +179,7 @@ void decode(int one_zero[], int index){
   printf("\nText form: ");
   char* token = strtok(msg, "-");
   while (token != NULL){
-	  printf("\n Token: %s, alphabet: %s", token, dot_to_char(token));
+	  fprintf(stderr,"\n Token: %s, alphabet: %s", token, dot_to_char(token));
 	  token = strtok(NULL, "-");
   }
 }

@@ -68,7 +68,7 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 	    DEBUG_PRINT("\nclock ratio = %f\n", elapsed_us/(CLOCK_MS*1000));
 
 	    // Separating character received 
-	    if (elapsed_us > (CLOCK_MS * 4 * 1000)) {
+	    if (elapsed_us > (CLOCK_MS * 4.5 * 1000)) {
 	    	receiver_buffer[rx_buf_idx++] = 1;
 	    	receiver_buffer[rx_buf_idx++] = 1;
 	    	receiver_buffer[rx_buf_idx++] = 1;
@@ -82,7 +82,7 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 	    }
 
 
-	    if (elapsed_us > (CLOCK_MS * 2 * 1000)) {
+	    if (elapsed_us > (CLOCK_MS * 2.5 * 1000)) {
 	    	receiver_buffer[rx_buf_idx++] = 1;
 	    	receiver_buffer[rx_buf_idx++] = 1;
 	    	receiver_buffer[rx_buf_idx++] = 1;
