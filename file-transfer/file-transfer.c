@@ -1,5 +1,5 @@
 /*
- * stress-test.c
+ * file-transfer.c
  *
  *  Created on: Nov 14, 2020
  *      Author: Stephen Cool
@@ -68,6 +68,10 @@ void msg_in_callback(int gpio, int level, uint32_t tick);
 void* sender_thread(void *arg);
 void send_data(struct send_thread_data *data);
 
+/**
+ * @brief: sender thread
+ * @param pointer to send_thread_data struct containing data to send
+ */
 void* sender_thread(void *arg) {
 	struct send_thread_data *data = (struct send_thread_data*) arg;
 	send_data(data);
@@ -75,6 +79,10 @@ void* sender_thread(void *arg) {
 	return 0;
 }
 
+/**
+ * @brief: send data over IR link using hardware PWM
+ * @param: pointer send_thread_data struct for data to send
+ */
 void send_data(struct send_thread_data *data) {
 
 	printf("Length of string to send : %d\n", data->length);
@@ -109,6 +117,12 @@ void send_data(struct send_thread_data *data) {
 	DEBUG_PRINT("\n Message sent !\n");
 }
 
+/**
+ * @brief: receive data callback on every I/O interrupt
+ * @param: gpio pin on which ISR received
+ * @param: level - pin level (high or low)
+ * @param: tick - not used
+ */
 void msg_in_callback(int gpio, int level, uint32_t tick) {
 	pthread_mutex_lock(&lock);
 
@@ -184,6 +198,11 @@ void msg_in_callback(int gpio, int level, uint32_t tick) {
 	pthread_mutex_unlock(&lock);
 }
 
+/**
+ * @brief: transfer input file and save
+ * @param: arg1 - filepath to data to send
+ * @param: arg2 - transmission clock speed
+ */
 int main(int argc, char *argv[]) {
 	DEBUG_PRINT("Starting stress test\n");
 
