@@ -11,8 +11,9 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#define MSG_OUT_PIN 15
-#define PWM_FREQ  1000
+#define MSG_OUT_PIN 12
+#define PWM_FREQ  38000
+#define DUTY_CYCLE 500000
 
 int main(int argc, char *argv[]){
 	  if (gpioInitialise() < 0){
@@ -20,7 +21,7 @@ int main(int argc, char *argv[]){
 	        return 1;
 	      }
 
-	  int res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, PWM_FREQ);
+	  int res = gpioHardwarePWM(MSG_OUT_PIN, PWM_FREQ, DUTY_CYCLE);
 	  printf("Result %d\n", res);
 
 	  for (int i = 0; i < 10000; i++) {
