@@ -3,9 +3,7 @@
 echo "Starting file transfer..."
 
 input_file=$1
-clock_ms=$2
 output_file="/var/tmp/IR_data.txt"
-./file-transfer-app ${input_file} ${clock_ms}
 
 diff ${input_file} ${output_file} > /dev/null
 if [ $? -ne 0 ]; then
